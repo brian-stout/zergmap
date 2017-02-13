@@ -79,7 +79,7 @@ zerg * get_gps(zerg * zerg_unit, FILE * fp)
 {
     uint64_t longitude;
     fread(&longitude, sizeof(longitude), 1, fp);
-    uint32_t latitude;
+    uint64_t latitude;
     fread(&latitude, sizeof(latitude), 1, fp);
     uint32_t altitude;
     fread(&altitude, sizeof(altitude), 1, fp);
@@ -111,11 +111,63 @@ zerg * get_status(zerg * zerg_unit, FILE * fp)
     return zerg_unit;  
 }
 
+zerg * read_pcap_packet(FILE * fp);
+
+int
+main( int argc, char *argv[] )
+{
+    //SUPPORT MULTIPLE FILES AND OPTIONS
+    if (argc < 2)
+    {
+        printf("ERROR, USAGE: [zergmap] [~/<filename>.pcap]\n");
+        return EX_USAGE;
+    }
+
+    for(int i = 1; i < argc; ++i)
+    {
+        FILE *fp = fopen(argv[i], "rb");
+
+        if (!fp)
+        {
+            printf("Unable to open file!\n");
+            return EX_USAGE;
+        }
+
+        //Skip the global header
+        fseek(fp, GLOBAL_HEADER_SZ, SEEK_SET);
+
+        while(1)
+        {
+            uint32_t unixEpoch;
+            int bytesRead;
+            bytesRead = fread(&unixEpoch, sizeof(unixEpoch), 1, fp);
+            if(bytesRead == 0)
+            {
+                break;
+            }
+
+            //Generate unit data
+            zerg * zerg_unit = read_pcap_packet(fp);
+            
+            //Checking to see if zerg_unit was successful
+            if(zerg_unit)
+            {
+                //Do stuff with unit data
+                print_zerg_unit(zerg_unit);
+                //clear file stuff
+                free(zerg_unit);
+            }
+        }
+        fclose(fp);
+    }
+}
+
 zerg * read_pcap_packet(FILE * fp)
 {
     //Go to size of file value in PCAP header
-    //8 bytes to skip the time keeping portion of the PCAP
-    fseek(fp, 8, SEEK_CUR);
+    //4 bytes to skip the time keeping portion of the PCAP
+    //Unix Epoch was read outside of test file to error check
+    fseek(fp, 4, SEEK_CUR);
 
     uint32_t bytesLeft;
     fread(&bytesLeft, sizeof(bytesLeft), 1, fp);
@@ -164,9 +216,8 @@ zerg * read_pcap_packet(FILE * fp)
     //If it isn't a GPS packet or a status packet, we don't care
     if(type != 1 && type != 3)
     {
-        printf("Quitting out at type check\n");
-        //fseek bytes left
-        return 0;
+        fseek(fp, bytesLeft, SEEK_CUR);
+        return NULL;
     }
 
     //Shifting four bits over and dropping the version off the type
@@ -175,9 +226,8 @@ zerg * read_pcap_packet(FILE * fp)
     //If it isn't version 1, we can't read the packet
     if(version != 1)
     {
-        printf("Quitting out at version check\n");
-        //fseek bytes left
-        return 0;
+        fseek(fp, bytesLeft, SEEK_CUR);
+        return NULL;
     }
 
     //Jumps past the zerg length portion (3 bytes) and the destination
@@ -194,6 +244,7 @@ zerg * read_pcap_packet(FILE * fp)
     bytesLeft -= 2;
 
     //Skipping rest of the zerg packet, the sequence ID
+
     fseek(fp, 4, SEEK_CUR);
     bytesLeft -= 4;
     
@@ -217,32 +268,5 @@ zerg * read_pcap_packet(FILE * fp)
     {
         fseek(fp, bytesLeft, SEEK_CUR);
     }
-
     return zerg_unit;
 } 
-
-int
-main( int argc, char *argv[] )
-{
-    //SUPPORT MULTIPLE FILES AND OPTIONS
-    if (argc != 2)
-    {
-        printf("ERROR, USAGE: [zergmap] [~/<filename>.pcap]\n");
-        return EX_USAGE;
-    }
-
-    FILE *fp = fopen(argv[1], "rb");
-
-    if (!fp)
-    {
-        printf("Unable to open file!\n");
-        return EX_USAGE;
-    }
-
-    //Skip the global header
-    fseek(fp, GLOBAL_HEADER_SZ, SEEK_SET);
-    
-    zerg * zerg_unit = read_pcap_packet(fp);
-
-    print_zerg_unit(zerg_unit);
-}
