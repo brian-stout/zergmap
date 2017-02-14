@@ -5,18 +5,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <math.h>
 
 #include "binary.h"
-
-typedef struct zerg
-{
-    int zergID;
-    long int HP;
-    long int maxHP;
-    double longitude;
-    double latitude;
-    float altitude;
-}   zerg;
+#include "list.h"
 
 enum
 {
@@ -53,6 +45,7 @@ enum
     ZERG_HEADER_SZ = 12
 };
 
+
 zerg * init_zerg_unit(void)
 {
     zerg * zerg_unit = (zerg *)malloc(sizeof(zerg));
@@ -83,6 +76,7 @@ zerg * get_gps(zerg * zerg_unit, FILE * fp)
     fread(&latitude, sizeof(latitude), 1, fp);
     uint32_t altitude;
     fread(&altitude, sizeof(altitude), 1, fp);
+    //Skip over the rest of the GPS packet
     fseek(fp, 12, SEEK_CUR);
 
     zerg_unit->longitude = bin_to_doub(ntohll(longitude));
@@ -123,6 +117,8 @@ main( int argc, char *argv[] )
         return EX_USAGE;
     }
 
+    list * unitList = init_list();
+
     for(int i = 1; i < argc; ++i)
     {
         FILE *fp = fopen(argv[i], "rb");
@@ -130,6 +126,7 @@ main( int argc, char *argv[] )
         if (!fp)
         {
             printf("Unable to open file!\n");
+            //Maybe put a continue here?
             return EX_USAGE;
         }
 
@@ -154,12 +151,18 @@ main( int argc, char *argv[] )
             {
                 //Do stuff with unit data
                 print_zerg_unit(zerg_unit);
-                //clear file stuff
-                free(zerg_unit);
+                printf("\n");
+                unitList = add_zerg(unitList, zerg_unit);
             }
         }
         fclose(fp);
+
+
     }
+    print_list(unitList);
+    compare_list(unitList);
+
+    destroy_list(unitList);    
 }
 
 zerg * read_pcap_packet(FILE * fp)
@@ -230,8 +233,8 @@ zerg * read_pcap_packet(FILE * fp)
         return NULL;
     }
 
-    //Jumps past the zerg length portion (3 bytes) and the destination
-    // ID portion (2 bytes)
+    //Jumps past the zerg length portion (3 bytes)
+    // ID portion (2 bytes) and the source ID
     fseek(fp, 3 + 2, SEEK_CUR);
     bytesLeft -= (3 + 2);
 
@@ -243,7 +246,7 @@ zerg * read_pcap_packet(FILE * fp)
     zerg_unit->zergID = ntohs(zerg_unit->zergID);
     bytesLeft -= 2;
 
-    //Skipping rest of the zerg packet, the sequence ID
+    //Skipping rest of the zerg packet, the sequence ID 
 
     fseek(fp, 4, SEEK_CUR);
     bytesLeft -= 4;
