@@ -9,6 +9,7 @@
 
 #include "binary.h"
 #include "list.h"
+#include "graph.h"
 
 enum
 {
@@ -150,8 +151,6 @@ main( int argc, char *argv[] )
             if(zerg_unit)
             {
                 //Do stuff with unit data
-                print_zerg_unit(zerg_unit);
-                printf("\n");
                 unitList = add_zerg(unitList, zerg_unit);
             }
         }
@@ -161,8 +160,13 @@ main( int argc, char *argv[] )
     }
     print_list(unitList);
     compare_list(unitList);
+    printf("There are %d members in the list!\n", unitList->numberOfMembers);
 
-    destroy_list(unitList);    
+    struct graph * myGraph;
+    myGraph = create_graph(unitList);
+
+    printf("%d\n", myGraph->unitMatrix[0]->zergID);
+    printf("%d\n", myGraph->unitMatrix[1]->zergID);
 }
 
 zerg * read_pcap_packet(FILE * fp)

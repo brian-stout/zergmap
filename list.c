@@ -75,12 +75,20 @@ void destroy_list(list * listContainer)
         target = cursor;
         cursor = cursor->next;
 
-        free(target->node);
-        free(target);
+        if(target->node)
+        {
+            free(target->node);
+        }
+        if(target)
+        {
+            free(target);
+        }
     }
 
     free(listContainer);
 }
+
+//http://gis.stackexchange.com/a/4909
 
 double TO_RAD(double number)
 {
