@@ -88,32 +88,6 @@ void destroy_list(list * listContainer)
     free(listContainer);
 }
 
-//http://gis.stackexchange.com/a/4909
-
-double TO_RAD(double number)
-{
-    number *=(3.1415926536 / 180);
-
-    return number;
-}
-
-double haversine(zerg *unit1, zerg * unit2)
-{
-    double lat1 = TO_RAD(unit1->latitude);
-    double lon1 = TO_RAD(unit1->longitude);
-    double lat2 = TO_RAD(unit2->latitude);
-    double lon2 = TO_RAD(unit2->longitude);
-
-
-    double dLat = (lat2-lat1);
-    double dLon = (lon2-lon1);
-    double a;
-    a = sin(dLat/2) * sin(dLat/2) + cos(lat1) * cos(lat2) * sin(dLon/2) * sin(dLon/2);
-    double distance = 6371 * 2 * atan2(sqrt(a), sqrt(1-a));
-
-    return distance;
-}
-
 void compare_list(list * listContainer)
 {
     if(listContainer == NULL)
@@ -137,7 +111,7 @@ void compare_list(list * listContainer)
         {
             printf("The distance between unit %d", cursor->node->zergID);
             printf(" and unit %d", target->node->zergID);
-            printf(" is %lf\n", haversine(cursor->node, target->node)*1000);
+            printf(" is %lf\n", haversine(cursor->node, target->node));
             target = target->next;
         }
 

@@ -28,6 +28,12 @@ struct listNode
     struct listNode * next;    
 };
 
+struct numberList
+{
+    int number;
+    struct numberList * next;
+};
+
 list * init_list(void);
 
 list * add_zerg(list * listContainer, zerg * zergUnit);

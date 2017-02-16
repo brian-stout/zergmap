@@ -158,14 +158,22 @@ main( int argc, char *argv[] )
 
 
     }
-    print_list(unitList);
-    compare_list(unitList);
-    printf("There are %d members in the list!\n", unitList->numberOfMembers);
+    //TODO: If there's just two members, report as fully connected
 
     struct graph * myGraph;
     myGraph = create_graph(unitList);
+    myGraph = cleanup_graph(myGraph);
 
     print_matrix_table(myGraph);
+
+    //TODO: PROBLEMS:
+    //1. This function does not handle different nodes with the same coordinates
+    //2. This function does not handle nodes to close
+    //3. The problem doesn't handle duplicate Zerg IDs (This needs to be fixed)
+    //      probably with a tree, cause yolo.
+    //4. No clean up yet.
+    //5. In the graph function, if at any point there's just two members left, report
+    //      as fully connected.
 
 }
 
