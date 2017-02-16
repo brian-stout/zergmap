@@ -165,8 +165,8 @@ main( int argc, char *argv[] )
     struct graph * myGraph;
     myGraph = create_graph(unitList);
 
-    printf("%d\n", myGraph->unitMatrix[0]->zergID);
-    printf("%d\n", myGraph->unitMatrix[1]->zergID);
+    print_matrix_table(myGraph);
+
 }
 
 zerg * read_pcap_packet(FILE * fp)
