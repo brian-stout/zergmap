@@ -25,6 +25,7 @@ double find_distance(zerg *unit1, zerg * unit2);
 int return_adj_num(struct graph * zergMap, int vertices);
 int return_first_adj(struct graph * zergMap, int vert);
 struct graph * delete_node(struct graph * zergMap, int vert);
+bool graph_solveable(struct graph * zergMap);
 struct graph * remove_leafs(struct graph * zergMap, int vert);
 struct graph * cleanup_graph(struct graph * zergMap);
 void print_matrix_table(struct graph *);

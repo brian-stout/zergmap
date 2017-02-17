@@ -10,6 +10,7 @@
 #include "binary.h"
 #include "list.h"
 #include "graph.h"
+#include "tree.h"
 
 enum
 {
@@ -119,6 +120,7 @@ main( int argc, char *argv[] )
     }
 
     list * unitList = init_list();
+    tree * unitTree = NULL;
 
     for(int i = 1; i < argc; ++i)
     {
@@ -152,6 +154,7 @@ main( int argc, char *argv[] )
             {
                 //Do stuff with unit data
                 unitList = add_zerg(unitList, zerg_unit);
+                unitTree = insert(unitTree, zerg_unit);
             }
         }
         fclose(fp);
@@ -166,14 +169,16 @@ main( int argc, char *argv[] )
 
     print_matrix_table(myGraph);
 
+    if(!graph_solveable(myGraph))
+    {
+        printf("There is no solution for this problem set!\n");
+    }
+
     //TODO: PROBLEMS:
-    //1. This function does not handle different nodes with the same coordinates
-    //2. This function does not handle nodes to close
+    //2. This function does not handle nodes to close properly (just gets rid of them)
     //3. The problem doesn't handle duplicate Zerg IDs (This needs to be fixed)
     //      probably with a tree, cause yolo.
-    //4. No clean up yet.
-    //5. In the graph function, if at any point there's just two members left, report
-    //      as fully connected.
+    //4. No destroy up yet.
 
 }
 

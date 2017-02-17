@@ -6,14 +6,14 @@ CFLAGS+=-std=c11
 
 LDLIBS+=-lm
 
-BIN=zergmap decode.o encode.o
-OBJS=zergmap.o binary.o decode.o encode.o packet.o list.o graph.o
+BIN=zergmap
+OBJS=zergmap.o binary.o decode.o encode.o packet.o list.o graph.o tree.o
 
 .PHONY: clean debug profile
 
 all: $(BIN)
 
-zergmap: zergmap.o binary.o list.o graph.o
+zergmap: zergmap.o binary.o list.o graph.o tree.o
 decode: decode.o binary.o packet.o
 encode: encode.o binary.o packet.o
 

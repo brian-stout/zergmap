@@ -13,11 +13,11 @@ bool are_doub_equal(double num1, double num2)
 
     if(abs(num1 - num2) < epsilon)
     {
-        return false;
+        return true;
     }
     else
     {
-        return true;
+        return false;
     }
 }
 
@@ -59,14 +59,23 @@ double find_distance(zerg *unit1, zerg * unit2)
 
     if(are_doub_equal(unit1->altitude, unit2->altitude))
     {
+
         return surfaceDistance;
     }
     else
     {
         double altitudeDelta = abs(unit1->altitude - unit2->altitude);
         //Convert fathoms to meters
+
         altitudeDelta *= 1.8288;
-        return sqrt(pow(surfaceDistance, 2) + pow(altitudeDelta, 2));
+        if(surfaceDistance > 0)
+        {
+            return sqrt(pow(surfaceDistance, 2) + pow(altitudeDelta, 2));
+        }
+        else
+        {
+            return altitudeDelta;
+        }
     }
 }
 
@@ -79,6 +88,10 @@ struct graph * create_graph(list * listContainer)
     //      probably with a tree, cause yolo.
 
     struct graph * newGraph = (struct graph *)malloc(sizeof(struct graph));
+    newGraph->vertices = 0;
+    newGraph->deleted = 0;
+    newGraph->unitMatrix = NULL;
+    newGraph->adj = NULL;
     
     if(!newGraph)
     {
@@ -89,8 +102,6 @@ struct graph * create_graph(list * listContainer)
 
     newGraph->vertices = vertices = listContainer->numberOfMembers;
     zerg ** unitMatrix = malloc(newGraph->vertices * sizeof(zerg));
-
-    printf("%d\n", vertices);
 
     struct listNode * cursor = listContainer->first;
 
@@ -227,7 +238,20 @@ struct graph * delete_node(struct graph * zergMap, int vert)
         zergMap->adj[vert][i] = -1;
     }
 
+    zergMap->deleted++;
     return zergMap;
+}
+
+bool graph_solveable(struct graph * zergMap)
+{
+    if(zergMap->deleted > (zergMap->vertices/2))
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
 }
 
 struct graph * remove_leafs(struct graph * zergMap, int vert)
@@ -236,12 +260,15 @@ struct graph * remove_leafs(struct graph * zergMap, int vert)
 
     if(1 == return_adj_num(zergMap, vert))
     {
-        adj_node = return_first_adj(zergMap, vert);
-        zergMap = delete_node(zergMap, vert);
-        if(adj_node > 0)
+        if((zergMap->vertices - zergMap->deleted) > 2)
         {
-            printf("Yes there's an adjacent node!\n");
-            zergMap = remove_leafs(zergMap, vert);
+            adj_node = return_first_adj(zergMap, vert);
+            zergMap = delete_node(zergMap, vert);
+
+            if(adj_node > 0)
+            {
+                zergMap = remove_leafs(zergMap, adj_node);
+            }
         }
     }
 
@@ -260,6 +287,11 @@ struct graph * cleanup_graph(struct graph * zergMap)
             zergMap = delete_node(zergMap, i);
         }
 
+        if(!graph_solveable(zergMap))
+        {
+            return zergMap;
+        }
+
         zergMap = remove_leafs(zergMap, i);
     }   
 
@@ -275,6 +307,7 @@ void print_matrix_table(struct graph * zergMap)
     {
         printf("%d  ", zergMap->unitMatrix[i]->zergID);
     }
+
     printf("\n");
 
     for(int i = 0; i < vertices; ++i)
