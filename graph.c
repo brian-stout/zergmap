@@ -275,7 +275,6 @@ struct graph * remove_leafs(struct graph * zergMap, int vert)
     return zergMap;
 }
 
-
 struct graph * cleanup_graph(struct graph * zergMap)
 {
     int vertices = zergMap->vertices;
@@ -297,7 +296,6 @@ struct graph * cleanup_graph(struct graph * zergMap)
 
     return zergMap;
 }
-
 
 void print_matrix_table(struct graph * zergMap)
 {
