@@ -8,8 +8,7 @@
 #include <stdbool.h>
 
 #include "list.h"
-
-
+#include "input.h"
 
 struct graph {
     int vertices;
@@ -29,7 +28,6 @@ bool graph_solveable(struct graph * zergMap);
 struct graph * remove_leafs(struct graph * zergMap, int vert);
 struct graph * cleanup_graph(struct graph * zergMap);
 void print_matrix_table(struct graph *);
-
 struct graph * create_graph(list * listContainer);
 
 #endif

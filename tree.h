@@ -2,20 +2,17 @@
 #define TREE_H
 
 #include <stdio.h>
-#include <stdbool.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "list.h"
+#include "input.h"
 
 typedef struct tree
 {
-
     zerg * node;
     struct tree *left;
     struct tree *right;
     int height;
-    bool visited;
 }   tree;
 
 /** insert() is the main function that handles creating nodes and sorting them based on there symbol
@@ -48,5 +45,9 @@ int max(int a, int b);
 int height(tree * root);
 
 int id_compare(int num1, int num2);
+
+void print_tree(tree * root);
+
+list * unpack_tree(tree * root, list * zergList);
 
 #endif

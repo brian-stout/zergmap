@@ -92,7 +92,6 @@ struct tree *insert(tree * root, zerg * zergUnit)
         {
             root->node = zergUnit;
             root->left = root->right = NULL;
-            root->visited = false;
             root->height = 1;
         }
     }
@@ -139,7 +138,7 @@ struct tree *insert(tree * root, zerg * zergUnit)
             root->right = insert(root->right, zergUnit);
         }
     }
-    //See's if the left or right branches are balanced or not
+    //See's if the left or right branches are balanced or not 
     int balance = get_balance(root);
 
     //Checks for the types of imbalances and fixes them if they are
@@ -169,4 +168,39 @@ struct tree *insert(tree * root, zerg * zergUnit)
 
     //Return the new node
     return root;
+}
+
+void print_tree(tree * root)
+{
+    if(root->left)
+    {
+        print_tree(root->left);
+    }
+    
+    printf("%d: longitude: %lf", root->node->zergID, root->node->longitude);
+    printf(" latitude: %lf\n", root->node->latitude);
+    
+
+    if(root->right)
+    {
+        print_tree(root->right);
+    } 
+}
+
+list * unpack_tree(tree * root, list * zergList)
+{
+    if(root->left)
+    {
+       zergList = unpack_tree(root->left, zergList);  
+    }
+
+    zergList = add_zerg(zergList, root->node);
+
+    if(root->right)
+    {
+        zergList = unpack_tree(root->right, zergList);
+    }
+
+    return zergList;
+    
 }

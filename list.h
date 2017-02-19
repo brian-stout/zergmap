@@ -6,15 +6,8 @@
 #include <stdint.h>
 #include <math.h>
 
-typedef struct zerg
-{
-    int zergID;
-    long int HP;
-    long int maxHP;
-    double longitude;
-    double latitude;
-    float altitude;
-}   zerg;
+#include "input.h"
+
 
 typedef struct listContainer
 {
