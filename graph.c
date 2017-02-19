@@ -11,7 +11,7 @@ bool are_doub_equal(double num1, double num2)
 {
     double epsilon = 0.000001;
 
-    if(abs(num1 - num2) < epsilon)
+    if(fabs(num1 - num2) < epsilon)
     {
         return true;
     }
@@ -23,7 +23,7 @@ bool are_doub_equal(double num1, double num2)
 
 //http://gis.stackexchange.com/a/4909
 double haversine(zerg *unit1, zerg * unit2)
-{
+{ 
     if(are_doub_equal(unit1->latitude, unit2->latitude))
     {
         if(are_doub_equal(unit1->longitude, unit2->longitude))
@@ -145,6 +145,7 @@ struct graph * create_graph(list * listContainer)
                 //1.25 yards
                 if(distance < 1.143)
                 {
+                    printf("Nodes are too close!\n");
                     //Set for adjacency check
                     adj[i][i] = -1;
                     //Does the same thing as same longitude and latitude because
@@ -167,8 +168,9 @@ struct graph * create_graph(list * listContainer)
                 }
                 else
                 {
+                    printf("Nodes have the same coordinates\n");
                     //Set for deletion
-                    adj[i][i] = -1;
+                    //adj[i][i] = -1;
                     adj[j][i] = 0; //no path
                 }
             }

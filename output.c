@@ -9,3 +9,24 @@ void print_zerg_unit(zerg *zerg_unit)
     printf("latitude: %lf\n", zerg_unit->latitude);
     printf("altitude: %f\n", zerg_unit->altitude);
 }
+
+void print_zerg_removal(struct graph * zergGraph)
+{
+    int vertices = zergGraph->vertices;
+    bool changesRequired = false;
+
+    printf("Network Alterations:\n");
+
+    for(int i = 0; i < vertices; ++i)
+    {
+        if(zergGraph->adj[i][i] < 0)
+        {
+            changesRequired = true;
+            printf("Remove zerg#%d\n", zergGraph->unitMatrix[i]->zergID);
+        }
+    }
+    if(changesRequired)
+    {
+        printf("All zerg are in position!\n");
+    }
+}

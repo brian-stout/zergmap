@@ -7,6 +7,7 @@
 #include "graph.h"
 #include "tree.h"
 #include "input.h"
+#include "output.h"
 
 
 
@@ -65,15 +66,22 @@ main( int argc, char *argv[] )
     list * unitList = init_list();
     unitList = unpack_tree(unitTree, unitList);
 
-    struct graph * myGraph;
-    myGraph = create_graph(unitList);
-    myGraph = cleanup_graph(myGraph);
+    struct graph * unitGraph;
+    unitGraph = create_graph(unitList);
 
-    print_matrix_table(myGraph);
+    print_matrix_table(unitGraph);
 
-    if(!graph_solveable(myGraph))
+    unitGraph = cleanup_graph(unitGraph);
+
+    print_matrix_table(unitGraph);
+
+    if(!graph_solveable(unitGraph))
     {
-        printf("There is no solution for this problem set!\n");
+        printf("Too many changes are need for solution to be cost effective!\n");
+    }
+    else
+    {
+        print_zerg_removal(unitGraph);
     }
 
     //TODO: PROBLEMS:
