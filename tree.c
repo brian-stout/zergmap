@@ -194,7 +194,10 @@ list * unpack_tree(tree * root, list * zergList)
        zergList = unpack_tree(root->left, zergList);  
     }
 
-    zergList = add_zerg(zergList, root->node);
+    if(root->node->longitude > 0 || root->node->latitude > 0)
+    {
+        zergList = add_zerg(zergList, root->node);
+    }
 
     if(root->right)
     {

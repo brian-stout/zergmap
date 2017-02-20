@@ -1,6 +1,9 @@
+#define _XOPEN_SOURCE
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sysexits.h>
+#include <unistd.h>
 
 #include "binary.h"
 #include "list.h"
@@ -9,11 +12,42 @@
 #include "input.h"
 #include "output.h"
 
+bool
+argument_checker(int argc, char *argv[])
+{
+    bool r = false;
 
+    for (int i = 0; i < argc; ++i)
+    {
+        if (argv[i][0] == '-')
+        {
+            //Checks to see if a tack option is followed by a space
+            if (argv[i][1] == ' ' || argv[i][1] == '\0')
+            {
+                printf("Usage: [-h <zerg health percent>] *[files]\n");
+                r = true;
+            }
+            //Checks to see if non option arguments exist before the options
+            else if (argv[1][0] != '-')
+            {
+                printf("Usage: [-h <zerg health percent>] *[files]\n");
+                r = true;
+            }
+        }
+    }
+
+    return r;
+}
 
 int
 main( int argc, char *argv[] )
 {
+    if (argument_checker(argc, argv))
+    {
+        return EX_USAGE;
+    }
+
+
     //SUPPORT MULTIPLE FILES AND OPTIONS
     if (argc < 2)
     {
@@ -21,15 +55,55 @@ main( int argc, char *argv[] )
         return EX_USAGE;
     }
 
+    int zergHealthPercentage = 10;
+
+    int c;
+
+    while (-1 < (c = getopt(argc, argv, "h:")))
+    {
+        char *err;
+
+        switch (c)
+        {
+        case 'h':
+            //Grabs the string following c and turns it to a number
+            zergHealthPercentage = strtol(optarg, &err, 10);
+            //if strtol fails it's likely because of this error
+            if (*err)
+            {
+                printf("Error: -h must be followed by a valid number \n");
+                return EX_USAGE;
+            }
+            //avoids weird negative numbers as user input
+            if (zergHealthPercentage < 0)
+            {
+                printf
+                    ("Error: -h can not be followed by a negative number \n");
+                return EX_USAGE;
+            }
+            if (zergHealthPercentage > 100)
+            {
+                printf
+                    ("Error: -h can not be followed by a number greater than 100 \n");
+                return EX_USAGE;
+            }
+            break;
+        case '?':
+            return EX_USAGE;
+        default:
+            break;
+        }
+    }
+
     tree * unitTree = NULL;
 
-    for(int i = 1; i < argc; ++i)
+    for(int i = optind; i < argc; ++i)
     {
         FILE *fp = fopen(argv[i], "rb");
 
         if (!fp)
         {
-            printf("Unable to open file!\n");
+            printf("Unable to open file %s!\n", argv[i]);
             //Maybe put a continue here?
             return EX_USAGE;
         }
@@ -83,6 +157,15 @@ main( int argc, char *argv[] )
     {
         print_zerg_removal(unitGraph);
     }
+    
+
+    bool printOnce = false;
+    printOnce = print_status(unitTree, zergHealthPercentage, printOnce);
+    if(!printOnce)
+    {
+        printf("No status info for zergs!\n");
+    }
+
 
     //TODO: PROBLEMS:
     //2. This function does not handle nodes to close properly (just gets rid of them)

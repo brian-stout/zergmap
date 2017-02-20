@@ -326,3 +326,9 @@ void print_matrix_table(struct graph * zergMap)
         printf(" has %d adjacenies\n", return_adj_num(zergMap, i));
     }
 }
+/*
+bool find_route(struct graph * zergGraph, int point1, point2)
+{
+     
+}
+*/
