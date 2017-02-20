@@ -32,6 +32,5 @@ struct graph * create_graph(list * listContainer);
 struct graph * solve_weakness(struct graph * zergGraph, int weakness);
 int check_for_weakness(struct graph * zergGraph);
 bool find_route(struct graph * zergMap, int point1, int point2, int weakness);
-bool is_in_route(route * zergRoute, int point);
 
 #endif

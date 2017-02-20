@@ -57,6 +57,7 @@ double find_distance(zerg *unit1, zerg * unit2)
 
     surfaceDistance = haversine(unit1, unit2);
 
+    //If the altitude is the same we only need to return the surface distance
     if(are_doub_equal(unit1->altitude, unit2->altitude))
     {
 
@@ -70,10 +71,13 @@ double find_distance(zerg *unit1, zerg * unit2)
         altitudeDelta *= 1.8288;
         if(surfaceDistance > 0)
         {
+            //If both the altitude and surface distances are different
+            //Calculate the hypotenuse to get the true distance
             return sqrt(pow(surfaceDistance, 2) + pow(altitudeDelta, 2));
         }
         else
         {
+            //If the surface Distance is 0 then the distance is difference between the heights
             return altitudeDelta;
         }
     }
@@ -81,12 +85,7 @@ double find_distance(zerg *unit1, zerg * unit2)
 
 struct graph * create_graph(list * listContainer)
 {
-    //TODO: PROBLEMS:
-    //1. This function does not handle different nodes with the same coordinates
-    //2. This function does not handle nodes to close
-    //3. The problem doesn't handle duplicate Zerg IDs (This needs to be fixed)
-    //      probably with a tree, cause yolo.
-
+    //Mallocing memory
     struct graph * newGraph = (struct graph *)malloc(sizeof(struct graph));
     newGraph->vertices = 0;
     newGraph->deleted = 0;
@@ -100,6 +99,8 @@ struct graph * create_graph(list * listContainer)
     }
     int vertices;
 
+    //Runs through and graphs every node from the list and inserts it into the graph
+    //A zerg unit array is used for quick access based off the adjacency array numbers
     newGraph->vertices = vertices = listContainer->numberOfMembers;
     zerg ** unitMatrix = malloc(newGraph->vertices * sizeof(zerg));
 
@@ -111,6 +112,7 @@ struct graph * create_graph(list * listContainer)
         cursor = cursor->next;     
     }
 
+    //Malloc's memory for the adjacency matric
     int **adj = (int **)malloc(newGraph->vertices * sizeof(int *));
     if(!adj)
     {
@@ -130,8 +132,6 @@ struct graph * create_graph(list * listContainer)
         }
     }
     
-    //Run the edges here
-
     double distance;
 
     for(int i = 0; i < vertices; ++i)
@@ -139,7 +139,6 @@ struct graph * create_graph(list * listContainer)
         for(int j = 0; j < vertices; ++j)
         {
             distance = find_distance(unitMatrix[i], unitMatrix[j]);
-            //TODO:Rework this to be more efficient and not as messy
             if(distance > 0)
             {
                 //1.25 yards
@@ -186,15 +185,19 @@ int return_adj_num(struct graph * zergMap, int vert)
 {
     int numOfAdj = 0;
 
+    //If the node is deleted return 0
     if(zergMap->adj[vert][vert] < 0)
     {
         return numOfAdj;
     }
 
+    
     int vertices = zergMap->vertices;
 
     for(int i = 0; i < vertices; ++i)
     {
+        //If there's an adjacent node increment the amount
+        //Greater than 0 to make sure it doesn't count deleted nodes
         if(zergMap->adj[vert][i] > 0 && zergMap->adj[vert][i] < 15)
         {
             numOfAdj++;
@@ -210,8 +213,9 @@ int return_first_adj(struct graph * zergMap, int vert)
 
     for(int i = 0; i < vertices; ++i)
     {
-        if(zergMap->adj[vert][i] > 0)
+        if(zergMap->adj[vert][i] > 0 && zergMap->adj[vert][i] < 15)
         {
+            //Once and adjacent node has been found return it
             return i;
         }
     }
@@ -236,6 +240,7 @@ struct graph * delete_node(struct graph * zergMap, int vert)
 
     for(int i = 0; i < vertices; ++i)
     {
+        //Sets all the edge information to 0
         zergMap->adj[i][vert] = -1;
         zergMap->adj[vert][i] = -1;
     }
@@ -260,15 +265,22 @@ struct graph * remove_leafs(struct graph * zergMap, int vert)
 {
     int adj_node;
 
+    //If there's only one adjacent node
     if(1 == return_adj_num(zergMap, vert))
     {
+        //Check is used to stop a two node solution from being dismantled
         if((zergMap->vertices - zergMap->deleted) > 2)
         {
+            //Grabs the only adjacent node for further use
             adj_node = return_first_adj(zergMap, vert);
+            //Deletes the adjacent node
             zergMap = delete_node(zergMap, vert);
 
+            //Only runs if there is an adjacent node
             if(adj_node > 0)
             {
+                //Recursively calls the function to see if deleting this node
+                //Creates another leaf
                 zergMap = remove_leafs(zergMap, adj_node);
             }
         }
@@ -283,16 +295,19 @@ struct graph * cleanup_graph(struct graph * zergMap)
 
     for(int i = 0; i < vertices; ++i)
     {
+        //If a function is set to delete '-1'
         if(zergMap->adj[i][i] < 0)
         {
             zergMap = delete_node(zergMap, i);
         }
 
+        //If we've deleted too many nodes for it to be solveable just quit out
         if(!graph_solveable(zergMap))
         {
             return zergMap;
         }
 
+        //Delete all the leaves in the graph
         zergMap = remove_leafs(zergMap, i);
     }   
 
@@ -331,14 +346,19 @@ int check_for_weakness(struct graph * zergGraph)
 {
     int vertices = zergGraph->vertices;
 
+    //Checking every node in the graph
     for(int i = 0; i < vertices; ++i)
     {
+        //If node has more than 2 adjacencies it can potentially be a choke point
         if(return_adj_num(zergGraph, i) > 2)
         {
+            //If it is check to see if there is a route around that node
             for(int j = 0; j < vertices; ++j)
             {
                 for(int k = 0; k < vertices; ++k)
                 {
+                    //If function returns false, there's no way around the specified node
+                    //Thus it's a choke point
                     if(find_route(zergGraph, j, k, i) == false)
                     {
                         return i;
@@ -434,12 +454,13 @@ struct graph * solve_weakness(struct graph * zergGraph, int weakness)
 {
     int vertices = zergGraph->vertices;
     int **adj = zergGraph->adj;
-    int edgesDeleted = 0;
     
     for(int i = 0; i < vertices; ++i)
     {
         if(adj[weakness][i] < 15 && adj[weakness][i] > 0)
         {
+            //Sets one of the adjacent nodes to -1 one, if it's a choke point
+            //This will cause a cascading effect from the cleanup_graph function
             adj[i][i] = -1;
             break;
         }

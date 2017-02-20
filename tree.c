@@ -194,7 +194,8 @@ list * unpack_tree(tree * root, list * zergList)
        zergList = unpack_tree(root->left, zergList);  
     }
 
-    if(root->node->longitude > 0 || root->node->latitude > 0)
+    //Only unpacks it if there is GPS information
+    if(root->node->longitude > 0 || root->node->latitude > 0 || root->node->altitude > 0)
     {
         zergList = add_zerg(zergList, root->node);
     }

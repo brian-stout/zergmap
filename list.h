@@ -21,19 +21,9 @@ struct listNode
     struct listNode * next;    
 };
 
-typedef struct numberList
-{
-    int number;
-    struct numberList * next;
-}   route;
-
 list * init_list(void);
 
 list * add_zerg(list * listContainer, zerg * zergUnit);
-
-route * add_node(route * root, int number);
-
-void print_route(route * zergRoute);
 
 void print_list(list * listContainer);
 

@@ -33,23 +33,6 @@ list * add_zerg(list * listContainer, zerg * zergUnit)
     return listContainer;
 }
 
-route * add_node(route * root, int number)
-{
-    if(root == NULL)
-    {
-        root = (route *)malloc(sizeof(route));
-        root->number = number;
-        root->next = NULL;
-        return root;   
-    }
-    else
-    {
-        root->next = add_node(root->next, number);
-    }
-
-    return root;
-}
-
 void print_list(list * listContainer)
 {
     if (listContainer == NULL)
@@ -133,35 +116,5 @@ void compare_list(list * listContainer)
         }
 
         cursor = cursor->next;
-    }
-}
-
-bool is_in_route(route * zergRoute, int point)
-{
-    while(true)
-    {
-        if(zergRoute == NULL)
-        {
-            return false;
-        }
-        if(zergRoute->number == point)
-        {
-            return true;
-        }
-        zergRoute = zergRoute->next;
-    }
-}
-
-void print_route(route * zergRoute)
-{
-    while(true)
-    {
-        if(zergRoute == NULL)
-        {
-            break;
-        }
-        printf("%d\n", zergRoute->number);
-
-        zergRoute = zergRoute->next;
     }
 }
