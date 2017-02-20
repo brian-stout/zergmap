@@ -469,5 +469,18 @@ struct graph * solve_weakness(struct graph * zergGraph, int weakness)
     return zergGraph;
 }
 
+void destroy_graph(struct graph * zergGraph)
+{
+    int vertices = zergGraph->vertices;
+
+    for(int i = 0; i < vertices; ++i)
+    {
+        free(zergGraph->unitMatrix[i]);
+        free(zergGraph->adj[i]);
+    }
+
+    free(zergGraph);
+}
+
 
 

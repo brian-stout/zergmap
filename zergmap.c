@@ -187,6 +187,10 @@ main( int argc, char *argv[] )
         printf("No status info for zergs!\n");
     }
     printf("\n");
+
+    destroy_graph(unitGraph);
+    destroy_list(unitList);
+    destroy_tree(unitTree);
 }
 
 

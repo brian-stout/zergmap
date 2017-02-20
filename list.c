@@ -75,10 +75,6 @@ void destroy_list(list * listContainer)
         target = cursor;
         cursor = cursor->next;
 
-        if(target->node)
-        {
-            free(target->node);
-        }
         if(target)
         {
             free(target);
@@ -118,3 +114,4 @@ void compare_list(list * listContainer)
         cursor = cursor->next;
     }
 }
+

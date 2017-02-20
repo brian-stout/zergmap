@@ -50,4 +50,6 @@ void print_tree(tree * root);
 
 list * unpack_tree(tree * root, list * zergList);
 
+void destroy_tree(tree * root);
+
 #endif

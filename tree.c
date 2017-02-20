@@ -208,3 +208,16 @@ list * unpack_tree(tree * root, list * zergList)
     return zergList;
     
 }
+
+void destroy_tree(tree * root)
+{
+    if(root->left)
+    {
+        destroy_tree(root->left);
+    }
+    if(root->right)
+    {
+        destroy_tree(root->right);
+    }
+    free(root);
+}
