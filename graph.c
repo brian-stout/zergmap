@@ -326,9 +326,127 @@ void print_matrix_table(struct graph * zergMap)
         printf(" has %d adjacenies\n", return_adj_num(zergMap, i));
     }
 }
-/*
-bool find_route(struct graph * zergGraph, int point1, point2)
+
+int check_for_weakness(struct graph * zergGraph)
 {
-     
+    int vertices = zergGraph->vertices;
+
+    for(int i = 0; i < vertices; ++i)
+    {
+        if(return_adj_num(zergGraph, i) > 2)
+        {
+            for(int j = 0; j < vertices; ++j)
+            {
+                for(int k = 0; k < vertices; ++k)
+                {
+                    if(find_route(zergGraph, j, k, i) == false)
+                    {
+                        return i;
+                    }
+                }
+            }
+        }
+    }
+
+    return -1;
 }
-*/
+
+bool find_route(struct graph * zergGraph, int point1, int point2, int weakness)
+{
+    int vertices = zergGraph->vertices;
+    int **adj = zergGraph->adj;
+    //route * newRoute = NULL;
+    int nextPoint = 0;
+
+    //newRoute = add_node(newRoute, point1);
+
+    while(true)
+    {
+        nextPoint = -1;
+        int nextPointDistance = 9999;
+
+        for(int i = 0; i < vertices; ++i)
+        {
+            if(nextPoint == point1)
+            {
+                adj[i][i] = 1;
+                nextPoint = -1;
+                continue;                
+            }
+            //Checks to see if node hasn't already been visited '1'
+            //Checks to see if node has been deleted '-1'
+            if(adj[i][i] == 1 && adj[i][i] < 0)
+            {
+                adj[i][i] = 1;
+                continue;
+            }
+            //Checks to see if node is adjacent 'distance is less than 15' 
+            //Checks to see if edge hasn't been deleted '-1'
+            if(adj[point1][i] > 0 && adj[point1][i] < 15)
+            {
+                //Finds the distance to the goal, picks the next adjacent point that's closest
+                // to the goal
+                if(adj[point2][i] < nextPointDistance)
+                {
+                    nextPointDistance = adj[point2][i];
+
+                    if(i != weakness)
+                    {
+                        nextPoint = i;
+                    }
+                    adj[i][i] = 1;
+                }                    
+            }
+        }
+
+        //newRoute = add_node(newRoute, nextPoint);
+
+        //Can't find path
+        if(nextPoint == -1)
+        {
+            for(int i = 0; i < vertices; ++i)
+            {
+                if(adj[i][i] > 0)
+                {
+                    adj[i][i] = 0;
+                }
+            }
+            return false;
+        }
+        //Found the goal
+        if(nextPoint == point2)
+        {
+            for(int i = 0; i < vertices; ++i)
+            {
+                if(adj[i][i] > 0)
+                {
+                    adj[i][i] = 0;
+                }
+            }
+            return true;
+        }  
+
+        point1 = nextPoint; 
+    }
+}
+
+struct graph * solve_weakness(struct graph * zergGraph, int weakness)
+{
+    int vertices = zergGraph->vertices;
+    int **adj = zergGraph->adj;
+    int edgesDeleted = 0;
+    
+    for(int i = 0; i < vertices; ++i)
+    {
+        if(adj[weakness][i] < 15 && adj[weakness][i] > 0)
+        {
+            adj[i][i] = -1;
+            break;
+        }
+    }
+
+    return zergGraph;
+}
+
+
+

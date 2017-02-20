@@ -29,6 +29,9 @@ struct graph * remove_leafs(struct graph * zergMap, int vert);
 struct graph * cleanup_graph(struct graph * zergMap);
 void print_matrix_table(struct graph *);
 struct graph * create_graph(list * listContainer);
-//bool find_route(struct graph * zergMap);
+struct graph * solve_weakness(struct graph * zergGraph, int weakness);
+int check_for_weakness(struct graph * zergGraph);
+bool find_route(struct graph * zergMap, int point1, int point2, int weakness);
+bool is_in_route(route * zergRoute, int point);
 
 #endif

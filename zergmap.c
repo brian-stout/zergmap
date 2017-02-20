@@ -97,6 +97,7 @@ main( int argc, char *argv[] )
 
     tree * unitTree = NULL;
 
+    //Using optind to start after the options have been parsed
     for(int i = optind; i < argc; ++i)
     {
         FILE *fp = fopen(argv[i], "rb");
@@ -135,27 +136,47 @@ main( int argc, char *argv[] )
 
 
     }
-    //TODO: If there's just two members, report as fully connected
-
+    //Generating a list of zerg members that only contain GPS information so the graph
+    //  function doesn't break;
     list * unitList = init_list();
     unitList = unpack_tree(unitTree, unitList);
 
     struct graph * unitGraph;
     unitGraph = create_graph(unitList);
 
-    print_matrix_table(unitGraph);
-
+    //Function removes nodes with only 1 adjacency
     unitGraph = cleanup_graph(unitGraph);
 
-    print_matrix_table(unitGraph);
+    int weakNode = 0;
 
+    //Checking for choke points, or points with multiple adjacencies where there's no alternate
+    //  route around it
+    while(true)
+    {
+        weakNode = check_for_weakness(unitGraph);
+        if(weakNode == -1)
+        {
+            break;
+        }
+        else
+        {
+            //We run cleanup_graph again just in case cleaning up created
+            //One adjaceny nodes
+            unitGraph = solve_weakness(unitGraph, weakNode);
+            unitGraph = cleanup_graph(unitGraph);
+        }
+    }
+
+    //If more than half the zerg units have been deleted the solution isn't solveable
     if(!graph_solveable(unitGraph))
     {
         printf("Too many changes are need for solution to be cost effective!\n");
     }
     else
     {
+        printf("\n");
         print_zerg_removal(unitGraph);
+        printf("\n");
     }
     
 
@@ -165,12 +186,7 @@ main( int argc, char *argv[] )
     {
         printf("No status info for zergs!\n");
     }
-
-
-    //TODO: PROBLEMS:
-    //2. This function does not handle nodes to close properly (just gets rid of them)
-    //4. No destroy up yet.
-    //5. Program does not detect problem packets IE.  Packets whose lengths are too short to contain useful information and would cause the program to read over into another packet
+    printf("\n");
 }
 
 
